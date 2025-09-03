@@ -1,0 +1,200 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevents flex item from overflowing */
+  position: relative;
+}
+
+.dashboard-main.with-sidebar {
+  margin-left: 0px;
+}
+
+.dashboard-main.with-sidebar .header {
+  margin-left: -280px;
+  width: calc(100% + 280px);
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.content-wrapper {
+  padding: 1.5rem;
+  width: 100%;
+  height: calc(100vh - 64px); /* Subtract header height */
+  overflow-y: auto;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .dashboard-main.with-sidebar {
+    margin-left: 0;
+  }
+
+  .content-wrapper {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-wrapper {
+    padding: 0.75rem;
+  }
+}
+
+/* Smooth transitions */
+.dashboard-main {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Scrollbar styling for content */
+.content-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.content-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Page container styles */
+.page-container {
+  width: 100%;
+  margin: 0px;
+  padding: 10px 50px;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Content sections */
+.content-section {
+  margin-bottom: 2rem;
+}
+
+.content-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading state */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #6b7280;
+}
+
+/* Error state */
+.page-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #ef4444;
+  text-align: center;
+}
+
+.page-error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.page-error-message {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+/* Empty state */
+.page-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.page-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.page-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.page-empty-message {
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+}
+
+/* Ensure full width for all content */
+.page-container,
+.content-section,
+.table-container,
+.card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive page styles */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-actions .btn {
+    width: 100%;
+  }
+}

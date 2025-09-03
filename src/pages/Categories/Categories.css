@@ -1,0 +1,69 @@
+/* Import common styles from Products */
+@import '../Products/Products.css';
+
+/* Category specific styles can be added here if needed */
+.category-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.category-form .form-section {
+  margin-bottom: 2rem;
+}
+
+/* Banner image styles */
+.banner-upload-container {
+  position: relative;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: #f8fafc;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.banner-upload-container:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.banner-preview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.banner-preview img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.banner-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.banner-preview:hover .banner-preview-overlay {
+  opacity: 1;
+}
+
+/* Sort order input */
+.sort-order-input {
+  max-width: 120px;
+}

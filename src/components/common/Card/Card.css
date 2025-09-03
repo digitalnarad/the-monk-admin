@@ -1,0 +1,151 @@
+.card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.card:hover.card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.card-header-content {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.card-header-action {
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-body.no-padding {
+  padding: 0;
+}
+
+/* Card variants */
+.card-bordered {
+  border: 2px solid #e5e7eb;
+}
+
+.card-elevated {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-flat {
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+}
+
+/* Compact card */
+.card-compact .card-header {
+  padding: 1rem 1rem 0 1rem;
+}
+
+.card-compact .card-body {
+  padding: 1rem;
+}
+
+.card-compact .card-title {
+  font-size: 1rem;
+}
+
+.card-compact .card-subtitle {
+  font-size: 0.8rem;
+}
+
+/* Large card */
+.card-large .card-header {
+  padding: 2rem 2rem 0 2rem;
+}
+
+.card-large .card-body {
+  padding: 2rem;
+}
+
+.card-large .card-title {
+  font-size: 1.25rem;
+}
+
+/* Card without header border */
+.card-no-header-border .card-header {
+  border-bottom: none;
+  background: white;
+  padding-bottom: 1rem;
+}
+
+/* Card content sections */
+.card-section {
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.card-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.card-section:first-child {
+  padding-top: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .card-header {
+    padding: 1rem 1rem 0 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .card-header-action {
+    margin-left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.8rem;
+  }
+}

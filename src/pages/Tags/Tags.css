@@ -1,0 +1,34 @@
+/* Import common styles */
+@import '../Products/Products.css';
+
+/* Tag specific styles */
+.tag-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tag-form .form-section {
+  margin-bottom: 2rem;
+}
+
+.tag-preview {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.tag-preview.inactive {
+  background: #6b7280;
+}
+
+.value-helper {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
