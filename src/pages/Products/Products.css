@@ -93,7 +93,12 @@
 .form-section-body {
   padding: 20px;
   overflow: visible;
-  height: 100%;
+}
+
+.main-upload-container {
+  height: 350px !important;
+  width: 350px !important;
+  margin: auto;
 }
 
 .form-full-width {
@@ -141,13 +146,6 @@
   color: #6b7280;
 }
 
-.image-preview-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
 .image-preview {
   position: relative;
   border-radius: 8px;
@@ -162,31 +160,22 @@
   object-fit: cover;
 }
 
-.image-preview-overlay {
+.variant-preview-overlay {
+  display: flex;
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent;
   opacity: 0;
-  transition: opacity 0.2s;
-  pointer-events: none;
+  transition: all 0.3s;
 }
-
-.image-preview:hover .image-preview-overlay {
-  opacity: 1;
+.image-preview:hover .variant-preview-overlay {
+  background: rgba(255, 255, 255, 0.3);
   pointer-events: auto;
+  opacity: 1;
 }
-
-.image-preview-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
 .remove-image-btn {
   position: absolute;
   top: 0.5rem;
@@ -238,18 +227,9 @@
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-.primary-image-badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  background: #3b82f6;
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
+.primary-image {
+  border: 2px solid #3b82f6;
 }
-
 /* Variant Management Styles */
 .variant-tabs {
   display: flex;
@@ -342,9 +322,9 @@
     gap: 1.5rem;
   }
 
-  .image-preview-container {
+  /* .image-preview-container {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
+  } */
 
   .variant-image-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));

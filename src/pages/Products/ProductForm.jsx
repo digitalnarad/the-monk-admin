@@ -143,7 +143,7 @@ const ProductForm = () => {
         variantImages,
       });
 
-      navigate("/products");
+      // navigate("/products");
     } catch (error) {
       console.error("Error saving product:", error);
     } finally {
@@ -305,23 +305,26 @@ const ProductForm = () => {
           </Card>
 
           {/* Main Image */}
-          <Card title="Main Product Image" className="form-section">
+          <Card title="Main Product Image" className="form-section ">
             <div className="form-section-body">
-              <ImageCropper
-                label=""
-                value={mainImage}
-                onChange={setMainImage}
-                enableCropping={true}
-                placeholder="Upload main product image"
-                accept="image/*"
-                maxSize={10 * 1024 * 1024}
-              />
+              <div className="main-upload-container">
+                <ImageCropper
+                  label=""
+                  value={mainImage}
+                  onChange={setMainImage}
+                  enableCropping={true}
+                  placeholder="Upload main product image"
+                  accept="image/*"
+                  maxSize={10 * 1024 * 1024}
+                />
+              </div>
               <div
                 className="form-section-footer"
                 style={{
                   marginTop: "0.5rem",
                   fontSize: "0.75rem",
                   color: "#6b7280",
+                  textAlign: "center",
                 }}
               >
                 Image will be cropped to square format automatically
@@ -408,18 +411,17 @@ const ProductForm = () => {
               <div className="variant-content">
                 <div className="variant-image-grid">
                   {variantImages[activeVariant].map((image, index) => (
-                    <div key={index} className="image-preview">
+                    <div
+                      key={index}
+                      className={`image-preview ${
+                        image.isPrimary ? "primary-image" : ""
+                      }`}
+                    >
                       <img
                         src={image.preview}
                         alt={`${activeVariant} variant ${index + 1}`}
                       />
-                      {image.isPrimary && (
-                        <div className="primary-image-badge">
-                          <Star size={12} /> Primary
-                        </div>
-                      )}
 
-                      {/* Always visible remove button in top-right */}
                       <button
                         className="remove-image-btn"
                         onClick={() => removeVariantImage(activeVariant, index)}
@@ -428,23 +430,20 @@ const ProductForm = () => {
                         <X size={14} />
                       </button>
 
-                      {/* Always visible primary button in center (only if not already primary) */}
                       {!image.isPrimary && (
-                        <button
-                          className="primary-image-btn"
-                          onClick={() => setPrimaryImage(activeVariant, index)}
-                          title="Set as primary"
-                        >
-                          <Star size={12} />
-                          Primary
-                        </button>
-                      )}
-
-                      <div className="image-preview-overlay">
-                        <div className="image-preview-actions">
-                          {/* Empty for now, can be used for additional actions on hover */}
+                        <div className="variant-preview-overlay">
+                          <Button
+                            className="primary-image-btn"
+                            onClick={() =>
+                              setPrimaryImage(activeVariant, index)
+                            }
+                            title="Set as primary"
+                          >
+                            <Star size={12} />
+                            Primary
+                          </Button>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
 

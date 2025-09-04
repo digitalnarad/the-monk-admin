@@ -5,7 +5,8 @@
 /* Override default React styles */
 #root {
   height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", sans-serif;
 }
 
 /* Global focus styles */
@@ -34,13 +35,16 @@ button {
 }
 
 /* Remove default input styles */
-input, textarea, select {
+input,
+textarea,
+select {
   font: inherit;
   color: inherit;
 }
 
 /* Remove default list styles */
-ul, ol {
+ul,
+ol {
   list-style: none;
   padding: 0;
   margin: 0;

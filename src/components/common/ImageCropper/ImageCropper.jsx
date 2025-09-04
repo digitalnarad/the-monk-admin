@@ -50,12 +50,12 @@ const ImageCropper = ({
       reader.onload = (e) => {
         setSelectedImage(e.target?.result);
 
-        if (enableCropping) {
+        if (enableCropping && fileInputRef.current) {
           setShowCropModal(true);
           const initialCrop = {
             unit: "px",
-            width: 50,
-            height: 50,
+            width: 200,
+            height: 200,
             x: 10,
             y: 10,
           };
@@ -72,7 +72,7 @@ const ImageCropper = ({
       };
       reader.readAsDataURL(file);
     },
-    [enableCropping, aspectRatio, maxSize, onChange]
+    [enableCropping, aspectRatio, maxSize, onChange, fileInputRef]
   );
 
   const getCroppedImage = useCallback(
@@ -129,6 +129,7 @@ const ImageCropper = ({
 
   const handleCropComplete = useCallback(async () => {
     if (!completedCrop || !imgRef.current) return;
+    console.log("completedCrop", completedCrop);
 
     setIsLoading(true);
     try {
@@ -163,13 +164,11 @@ const ImageCropper = ({
 
   const handleRemoveImage = useCallback(() => {
     onChange?.(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   }, [onChange]);
 
   const triggerFileInput = useCallback(() => {
     fileInputRef.current?.click();
+    handleCropCancel();
   }, []);
 
   return (
@@ -202,35 +201,17 @@ const ImageCropper = ({
           <div className="image-preview-container">
             <img src={value.preview} alt="Preview" className="image-preview" />
             <div className="image-preview-overlay">
-              <div className="image-preview-actions">
-                <Button
-                  variant="ghost"
-                  size="small"
-                  startIcon={<Upload size={14} />}
-                  onClick={triggerFileInput}
-                  disabled={disabled}
-                >
-                  Change
-                </Button>
-                <Button
-                  variant="danger"
-                  size="small"
-                  startIcon={<X size={14} />}
-                  onClick={handleRemoveImage}
-                  disabled={disabled}
-                >
-                  Remove
-                </Button>
-              </div>
+              <Button
+                variant="danger"
+                size="small"
+                startIcon={<X size={14} />}
+                onClick={() => {
+                  handleRemoveImage();
+                }}
+              >
+                Remove
+              </Button>
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={accept}
-              onChange={handleFileSelect}
-              disabled={disabled}
-              style={{ display: "none" }}
-            />
           </div>
         )}
       </div>
@@ -252,8 +233,10 @@ const ImageCropper = ({
                 onChange={(c) => setCrop(c)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={aspectRatio}
-                minWidth={50}
-                minHeight={50}
+                minWidth={100}
+                minHeight={100}
+                circularCrop={false}
+                ruleOfThirds
                 keepSelection
               >
                 <img
