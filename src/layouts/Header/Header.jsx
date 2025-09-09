@@ -1,24 +1,30 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, Settings, Bell, Search } from 'lucide-react';
-import { Button } from '../../components/common';
-import './Header.css';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Menu, User, LogOut, Settings, Bell, Search } from "lucide-react";
+import { Button } from "../../components/common";
+import "./Header.css";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../store/globalSlice";
 
 const Header = ({ onMenuToggle, isSidebarOpen }) => {
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { authData } = useSelector((state) => state.global);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
 
+  // State manage
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
   const generateBreadcrumbs = () => {
-    const pathnames = location.pathname.split('/').filter((x) => x);
-    const breadcrumbs = [{ name: 'Dashboard', path: '/dashboard' }];
+    const pathnames = location.pathname.split("/").filter((x) => x);
+    const breadcrumbs = [{ name: "Dashboard", path: "/dashboard" }];
 
     pathnames.forEach((name, index) => {
-      const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
-      if (name !== 'dashboard') {
+      const routeTo = `/${pathnames.slice(0, index + 1).join("/")}`;
+      if (name !== "dashboard") {
         breadcrumbs.push({
           name: name.charAt(0).toUpperCase() + name.slice(1),
-          path: routeTo
+          path: routeTo,
         });
       }
     });
@@ -27,9 +33,7 @@ const Header = ({ onMenuToggle, isSidebarOpen }) => {
   };
 
   const handleLogout = () => {
-    // Add logout logic here
-    localStorage.removeItem('auth-token');
-    navigate('/login');
+    dispatch(logout());
   };
 
   const breadcrumbs = generateBreadcrumbs();
@@ -44,13 +48,15 @@ const Header = ({ onMenuToggle, isSidebarOpen }) => {
           className="menu-toggle"
           startIcon={<Menu size={20} />}
         />
-        
+
         <div className="breadcrumbs">
           {breadcrumbs.map((crumb, index) => (
             <div key={index} className="breadcrumb-item">
               {index > 0 && <span className="breadcrumb-separator">/</span>}
               <button
-                className={`breadcrumb-link ${index === breadcrumbs.length - 1 ? 'active' : ''}`}
+                className={`breadcrumb-link ${
+                  index === breadcrumbs.length - 1 ? "active" : ""
+                }`}
                 onClick={() => navigate(crumb.path)}
               >
                 {crumb.name}
@@ -63,14 +69,9 @@ const Header = ({ onMenuToggle, isSidebarOpen }) => {
       <div className="header-center">
         <div className="search-container">
           <Search size={18} className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="search-input"
-          />
+          <input type="text" placeholder="Search..." className="search-input" />
         </div>
       </div>
-
       <div className="header-right">
         <Button
           variant="ghost"
@@ -87,7 +88,7 @@ const Header = ({ onMenuToggle, isSidebarOpen }) => {
             className="profile-btn"
             startIcon={<User size={18} />}
           />
-          
+
           {isProfileOpen && (
             <div className="profile-menu">
               <div className="profile-info">
@@ -96,25 +97,34 @@ const Header = ({ onMenuToggle, isSidebarOpen }) => {
                 </div>
                 <div className="profile-details">
                   <div className="profile-name">Admin User</div>
-                  <div className="profile-email">admin@monklab.com</div>
+                  <div className="profile-email">{authData?.email}</div>
                 </div>
               </div>
-              
+
               <div className="profile-menu-divider" />
-              
-              <button className="profile-menu-item" onClick={() => navigate('/profile')}>
+
+              <button
+                className="profile-menu-item"
+                onClick={() => navigate("/profile")}
+              >
                 <User size={16} />
                 Profile
               </button>
-              
-              <button className="profile-menu-item" onClick={() => navigate('/settings')}>
+
+              <button
+                className="profile-menu-item"
+                onClick={() => navigate("/settings")}
+              >
                 <Settings size={16} />
                 Settings
               </button>
-              
+
               <div className="profile-menu-divider" />
-              
-              <button className="profile-menu-item logout" onClick={handleLogout}>
+
+              <button
+                className="profile-menu-item logout"
+                onClick={handleLogout}
+              >
                 <LogOut size={16} />
                 Logout
               </button>

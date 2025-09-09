@@ -1,52 +1,59 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
-import { Button, Input, Card } from '../../components/common';
-import './Login.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { LogIn, Eye, EyeOff } from "lucide-react";
+import { Button, Input, Card } from "../../components/common";
+import "./Login.css";
+import api from "../../services/api";
+import { useDispatch } from "react-redux";
+import {
+  handelCatch,
+  setAuthToken,
+  showSuccess,
+  throwError,
+} from "../../store/globalSlice";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const validationSchema = Yup.object({
     email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
+      .email("Invalid email address")
+      .required("Email is required"),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required')
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: ''
+      email: "",
+      password: "",
     },
     validationSchema,
     onSubmit: async (values) => {
       await handleLogin(values);
-    }
+    },
   });
 
   const handleLogin = async (values) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock authentication
-      if (values.email === 'admin@monklab.com' && values.password === 'admin123') {
-        localStorage.setItem('auth-token', 'mock-jwt-token');
-        navigate('/dashboard');
-      } else {
-        alert('Invalid credentials. Use admin@monklab.com / admin123');
+      const res = await api.post("/auth/admin/login", values);
+      if (res.status !== 200) {
+        dispatch(throwError(res?.data?.message));
+        return null;
       }
+      dispatch(setAuthToken(res?.data?.response?.token));
+      dispatch(showSuccess(res?.data?.message));
+      navigate("/admin/dashboard");
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      dispatch(handelCatch(error));
+      console.log("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -81,7 +88,7 @@ const Login = () => {
               <Input
                 label="Password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "password" : "text"}
                 placeholder="Enter your password"
                 required
                 value={formik.values.password}
@@ -103,20 +110,13 @@ const Login = () => {
               variant="primary"
               size="large"
               fullWidth
+              className="mt-4"
               loading={loading}
               startIcon={<LogIn size={18} />}
             >
               Sign In
             </Button>
           </form>
-
-          <div className="login-footer">
-            <div className="demo-credentials">
-              <p className="demo-title">Demo Credentials:</p>
-              <p className="demo-text">Email: admin@monklab.com</p>
-              <p className="demo-text">Password: admin123</p>
-            </div>
-          </div>
         </Card>
       </div>
     </div>

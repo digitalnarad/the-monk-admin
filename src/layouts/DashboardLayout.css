@@ -25,6 +25,7 @@
 .dashboard-content {
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .content-wrapper {
@@ -32,6 +33,21 @@
   width: 100%;
   height: calc(100vh - 64px); /* Subtract header height */
   overflow-y: auto;
+}
+
+.content-loader {
+  flex: 1;
+  padding: 1.5rem;
+  width: 100%;
+  height: calc(100vh - 64px); /* Subtract header height */
+  overflow-y: auto;
+  background: transparent;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  z-index: 10000000;
 }
 
 /* Mobile responsive */

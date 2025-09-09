@@ -1,26 +1,28 @@
+import CryptoJS from "crypto-js";
+
 // Format date
 export const formatDate = (date) => {
-  if (!date) return '-';
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 };
 
 // Format currency
 export const formatCurrency = (amount) => {
-  if (!amount) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
+  if (!amount) return "$0.00";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
   }).format(amount);
 };
 
 // Truncate text
 export const truncateText = (text, length = 50) => {
-  if (!text) return '';
-  return text.length > length ? text.substring(0, length) + '...' : text;
+  if (!text) return "";
+  return text.length > length ? text.substring(0, length) + "..." : text;
 };
 
 // Generate slug from text
@@ -28,23 +30,26 @@ export const generateSlug = (text) => {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[\s_]+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[\s_]+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 };
 
 // Validate image file
 export const validateImageFile = (file) => {
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   const maxSize = 5 * 1024 * 1024; // 5MB
 
   if (!allowedTypes.includes(file.type)) {
-    return { valid: false, error: 'Please select a valid image file (JPEG, PNG, WebP)' };
+    return {
+      valid: false,
+      error: "Please select a valid image file (JPEG, PNG, WebP)",
+    };
   }
 
   if (file.size > maxSize) {
-    return { valid: false, error: 'Image size should be less than 5MB' };
+    return { valid: false, error: "Image size should be less than 5MB" };
   }
 
   return { valid: true };
@@ -71,14 +76,55 @@ export const debounce = (func, delay) => {
 
 // Get file extension
 export const getFileExtension = (filename) => {
-  return filename.split('.').pop().toLowerCase();
+  return filename.split(".").pop().toLowerCase();
 };
 
 // Convert bytes to human readable format
 export const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+const generateEncryptionKey = () => {
+  const appName = import.meta.env.VITE_APP_NAME || "TheMonkLab";
+  const appVersion = import.meta.env.VITE_APP_VERSION || "1.0.0";
+  const userAgent =
+    typeof window !== "undefined" ? window.navigator.userAgent : "server";
+
+  const keyMaterial = `${appName}-${appVersion}-${userAgent.slice(0, 20)}`;
+  return CryptoJS.SHA256(keyMaterial).toString();
+};
+
+const encryptionKey = generateEncryptionKey();
+
+export const encrypt = (data) => {
+  try {
+    const jsonString = JSON.stringify(data);
+    return CryptoJS.AES.encrypt(jsonString, encryptionKey).toString();
+  } catch (error) {
+    console.error("Encryption error:", error);
+    return null;
+  }
+};
+
+export const decrypt = (encryptedData) => {
+  try {
+    if (!encryptedData || typeof encryptedData !== "string") {
+      return null;
+    }
+
+    const decrypted = CryptoJS.AES.decrypt(encryptedData, encryptionKey);
+    const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+
+    if (!jsonString) {
+      return null;
+    }
+
+    return jsonString;
+  } catch (error) {
+    return null;
+  }
 };
