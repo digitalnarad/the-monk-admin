@@ -27,7 +27,7 @@ const TagForm = () => {
   const { id } = useParams();
   const isEdit = Boolean(id);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const validationSchema = Yup.object({
     name: Yup.string()

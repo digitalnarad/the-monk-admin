@@ -37,6 +37,10 @@
   border-color: #1d4ed8;
 }
 
+.btn-pointer {
+  cursor: pointer;
+}
+
 .btn-secondary {
   background: #6b7280;
   color: white;
@@ -181,7 +185,7 @@
   .btn {
     font-size: 0.875rem;
   }
-  
+
   .btn-large {
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;

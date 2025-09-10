@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactPaginate from "react-paginate";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, Search } from "lucide-react";
 import LoaderCircle from "../LoaderCircle/LoaderCircle";
 import "./Table.css";
 
@@ -57,111 +57,122 @@ const Table = ({
     <div className="table-container">
       {searchable && (
         <div className="table-search">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="search-input"
-          />
+          <div className="search-input-wrapper">
+            <div className="search-icon">
+              <Search size={16} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="search-input"
+            />
+          </div>
         </div>
       )}
 
       <div className="table-wrapper">
-        <div className="table-body">
-          <div className="header-row" style={{ minWidth: min || "1000px" }}>
-            {header?.map((elm, index) => {
-              const { title, className, isSort, key } = elm;
-              return (
-                <div
-                  className={`header-cell ${isSort ? "sortable" : ""} ${
-                    className || ""
-                  }`}
-                  key={index}
-                  onClick={isSort ? () => handleSort(key) : undefined}
-                >
-                  <span>{title}</span>
-                  {isSort && getSortIcon(key)}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="body-container" style={{ minWidth: min || "1000px" }}>
-            {!loader ? (
-              row?.length > 0 ? (
-                row.map((elm, index) => (
-                  <div className="body-row" key={index}>
-                    {elm?.data?.map((cElem, cIndex) => (
-                      <div
-                        className={`body-cell ${cElem?.className || ""}`}
-                        key={cIndex}
-                      >
-                        {cElem?.value}
-                      </div>
-                    ))}
+        <div style={{ minWidth: min || "1000px" }}>
+          <div className="table-body">
+            <div className="header-row" style={{ minWidth: min || "1000px" }}>
+              {header?.map((elm, index) => {
+                const { title, className, isSort, key } = elm;
+                return (
+                  <div
+                    className={`header-cell ${isSort ? "sortable" : ""} ${
+                      className || ""
+                    }`}
+                    key={index}
+                    onClick={isSort ? () => handleSort(key) : undefined}
+                  >
+                    <span>{title}</span>
+                    {isSort && getSortIcon(key)}
                   </div>
-                ))
+                );
+              })}
+            </div>
+
+            <div
+              className="body-container"
+              style={{ minWidth: min || "1000px" }}
+            >
+              {!loader ? (
+                row?.length > 0 ? (
+                  row.map((elm, index) => (
+                    <div className="body-row" key={index}>
+                      {elm?.data?.map((cElem, cIndex) => (
+                        <div
+                          className={`body-cell ${cElem?.className || ""}`}
+                          key={cIndex}
+                        >
+                          {cElem?.value}
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-data">
+                    <p>No data available</p>
+                  </div>
+                )
               ) : (
-                <div className="no-data">
-                  <p>No data available</p>
+                <div className="loader-container">
+                  <LoaderCircle size={50} />
                 </div>
-              )
-            ) : (
-              <div className="loader-container">
-                <LoaderCircle size={50} />
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {!hidePagination && paginationOption && (
-          <div className="pagination-container">
-            {paginationOption?.count === 0 ? (
-              <div className="pagination-info">
-                {loader ? "Please wait..." : "No records"}
-              </div>
-            ) : (
-              <div className="pagination-info">
-                {`Showing ${
-                  paginationOption?.currentPage * paginationOption?.pageSize + 1
-                }-${
-                  paginationOption?.count <
-                  (paginationOption?.currentPage + 1) *
-                    paginationOption?.pageSize
-                    ? paginationOption?.count
-                    : (paginationOption?.currentPage + 1) *
+          {!hidePagination && paginationOption && (
+            <div className="pagination-container">
+              {paginationOption?.count === 0 ? (
+                <div className="pagination-info">
+                  {loader ? "Please wait..." : "No records"}
+                </div>
+              ) : (
+                <div className="pagination-info">
+                  {`Showing ${
+                    paginationOption?.currentPage * paginationOption?.pageSize +
+                    1
+                  }-${
+                    paginationOption?.count <
+                    (paginationOption?.currentPage + 1) *
                       paginationOption?.pageSize
-                } from ${paginationOption?.count}`}
-              </div>
-            )}
+                      ? paginationOption?.count
+                      : (paginationOption?.currentPage + 1) *
+                        paginationOption?.pageSize
+                  } from ${paginationOption?.count}`}
+                </div>
+              )}
 
-            <ReactPaginate
-              pageCount={
-                Math.ceil(
-                  paginationOption?.count / paginationOption?.pageSize
-                ) || 1
-              }
-              marginPagesDisplayed={1}
-              pageRangeDisplayed={1}
-              previousLabel={<div className="prev-btn">Prev</div>}
-              nextLabel={<div className="next-btn">Next</div>}
-              breakLabel="..."
-              activeClassName="selected"
-              onPageChange={handlePageChange}
-              forcePage={paginationOption?.currentPage || 0}
-              containerClassName="pagination"
-              pageClassName="page-item"
-              pageLinkClassName="page-link"
-              previousClassName="page-item"
-              previousLinkClassName="page-link"
-              nextClassName="page-item"
-              nextLinkClassName="page-link"
-              breakClassName="page-item"
-              breakLinkClassName="page-link"
-            />
-          </div>
-        )}
+              <ReactPaginate
+                pageCount={
+                  Math.ceil(
+                    paginationOption?.count / paginationOption?.pageSize
+                  ) || 1
+                }
+                marginPagesDisplayed={1}
+                pageRangeDisplayed={1}
+                previousLabel={<div className="prev-btn pointer">Prev</div>}
+                nextLabel={<div className="next-btn pointer">Next</div>}
+                breakLabel="..."
+                activeClassName="selected"
+                onPageChange={handlePageChange}
+                forcePage={paginationOption?.currentPage || 0}
+                containerClassName="pagination"
+                pageClassName="page-item"
+                pageLinkClassName="page-link"
+                previousClassName="page-item"
+                previousLinkClassName="page-link"
+                nextClassName="page-item"
+                nextLinkClassName="page-link"
+                breakClassName="page-item"
+                breakLinkClassName="page-link"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

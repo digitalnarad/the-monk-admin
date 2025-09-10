@@ -7,6 +7,7 @@ import "./Tags.css";
 import { useDispatch } from "react-redux";
 import api from "../../services/api";
 import { handelCatch, throwError } from "../../store/globalSlice";
+import useDebounce from "../../hooks/useDebounce";
 
 const TagList = () => {
   const navigate = useNavigate();
@@ -15,57 +16,39 @@ const TagList = () => {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, tag: null });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [shortBy, setShortBy] = useState({
+    key: "createdAt",
+    direction: "desc",
+  });
   const [pagination, setPagination] = useState({
     currentPage: 0,
-    pageSize: 10,
+    pageSize: 1,
     count: 0,
   });
 
-  // Mock data
-  const mockTags = [
-    {
-      _id: "1",
-      name: "Modern",
-      desc: "Modern style artwork",
-      value: "modern",
-      isActive: true,
-      createdAt: "2024-01-15T10:30:00Z",
-    },
-    {
-      _id: "2",
-      name: "Abstract",
-      desc: "Abstract art pieces",
-      value: "abstract",
-      isActive: true,
-      createdAt: "2024-01-14T09:15:00Z",
-    },
-    {
-      _id: "3",
-      name: "Minimalist",
-      desc: "Clean and simple designs",
-      value: "minimalist",
-      isActive: true,
-      createdAt: "2024-01-13T14:45:00Z",
-    },
-    {
-      _id: "4",
-      name: "Colorful",
-      desc: "Vibrant and colorful artwork",
-      value: "colorful",
-      isActive: false,
-      createdAt: "2024-01-12T11:20:00Z",
-    },
-  ];
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     loadTags();
-  }, [pagination.currentPage]);
+  }, [
+    pagination.currentPage,
+    pagination.pageSize,
+    shortBy.key,
+    shortBy.direction,
+    debouncedSearch,
+  ]);
 
   const loadTags = async () => {
     setLoading(true);
     try {
       // await new Promise((resolve) => setTimeout(resolve, 800));
-      const res = await api.get("/tags/getAllTags");
+      const searchQuery = debouncedSearch?.trim()
+        ? `&search=${encodeURIComponent(debouncedSearch.trim())}`
+        : "";
+      const res = await api.get(
+        `/tags/getAllTags?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}${searchQuery}`
+      );
       console.log("res", res);
       if (res.status !== 200) {
         dispatch(
@@ -76,10 +59,10 @@ const TagList = () => {
         return;
       }
 
-      setTags(res?.data?.response || []);
+      setTags(res?.data?.response?.tags || []);
       setPagination((prev) => ({
         ...prev,
-        count: res?.data?.response.length || 0,
+        count: res?.data?.response?.count || 0,
       }));
     } catch (error) {
       console.error("Error loading tags:", error);
@@ -190,10 +173,20 @@ const TagList = () => {
           loader={loading}
           searchable={true}
           paginationOption={pagination}
+          onSort={(key, direction) => {
+            setShortBy({ key, direction });
+            console.log("{ key, direction }", { key, direction });
+            setPagination((prev) => ({ ...prev, currentPage: 0 }));
+          }}
+          defaultSort={shortBy}
           onPaginationChange={(page) =>
             setPagination((prev) => ({ ...prev, currentPage: page }))
           }
-          min="900px"
+          onSearch={(value) => {
+            setSearchTerm(value);
+            setPagination((prev) => ({ ...prev, currentPage: 0 }));
+          }}
+          min="1000px"
         />
       </Card>
 

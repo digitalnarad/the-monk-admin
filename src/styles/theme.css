@@ -428,6 +428,10 @@ img {
 }
 
 /* Display Utilities */
+.pointer {
+  cursor: pointer;
+}
+
 .hidden {
   display: none;
 }

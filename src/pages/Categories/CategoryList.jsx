@@ -5,8 +5,9 @@ import { Table, Button, Card, Modal } from "../../components/common";
 import { formatDate } from "../../utils/helpers";
 import "./Categories.css";
 import api from "../../services/api";
-import { handelCatch, throwError } from "../../store/globalSlice";
+import { handelCatch, throwError, showSuccess } from "../../store/globalSlice";
 import { useDispatch } from "react-redux";
+import useDebounce from "../../hooks/useDebounce";
 
 const CategoryList = () => {
   const navigate = useNavigate();
@@ -28,36 +29,7 @@ const CategoryList = () => {
     count: 0,
   });
 
-  // Mock data
-  const mockCategories = [
-    {
-      _id: "1",
-      name: "Wall Art",
-      desc: "Beautiful wall art pieces for home decoration",
-      slug: "wall-art",
-      sortOrder: 1,
-      isActive: true,
-      createdAt: "2024-01-15T10:30:00Z",
-    },
-    {
-      _id: "2",
-      name: "Paintings",
-      desc: "Original and print paintings",
-      slug: "paintings",
-      sortOrder: 2,
-      isActive: true,
-      createdAt: "2024-01-14T09:15:00Z",
-    },
-    {
-      _id: "3",
-      name: "Prints",
-      desc: "High-quality art prints",
-      slug: "prints",
-      sortOrder: 3,
-      isActive: false,
-      createdAt: "2024-01-13T14:45:00Z",
-    },
-  ];
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     loadCategories();
@@ -66,14 +38,18 @@ const CategoryList = () => {
     pagination.pageSize,
     shortBy.key,
     shortBy.direction,
+    debouncedSearch,
   ]);
 
   const loadCategories = async () => {
     setLoading(true);
     try {
       // await new Promise(resolve => setTimeout(resolve, 800));
+      const searchQuery = debouncedSearch?.trim()
+        ? `&search=${encodeURIComponent(debouncedSearch.trim())}`
+        : "";
       const res = await api.get(
-        `/categories/?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}`
+        `/categories/?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}${searchQuery}`
       );
       if (res.status !== 200) {
         console.error("Failed to fetch categories:", res);
@@ -125,32 +101,32 @@ const CategoryList = () => {
   };
 
   const getTableHeaders = () => [
-    { title: "Name", className: "w-200", isSort: true, key: "name" },
-    { title: "Description", className: "w-300", isSort: false },
-    { title: "Slug", className: "w-150", isSort: true, key: "slug" },
+    { title: "Name", className: "wp-15", isSort: true, key: "name" },
+    { title: "Description", className: "", isSort: false },
+    { title: "Slug", className: "wp-15", isSort: true, key: "slug" },
     {
       title: "Sort Order",
-      className: "w-100 text-center",
+      className: "wp-10 text-center",
       isSort: true,
       key: "sortOrder",
     },
     {
       title: "Status",
-      className: "w-100 text-center",
+      className: "wp-10 text-center",
       isSort: true,
       key: "isActive",
     },
-    { title: "Created", className: "w-150", isSort: true, key: "createdAt" },
-    { title: "Actions", className: "w-150 text-center" },
+    { title: "Created", className: "wp-10", isSort: true, key: "createdAt" },
+    { title: "Actions", className: "wp-10 text-center" },
   ];
 
   const getTableRows = () => {
     return categories.map((category) => ({
       data: [
-        { value: category.name, className: "font-medium" },
-        { value: category.desc || "-" },
-        { value: category.slug, className: "text-sm text-gray-600" },
-        { value: category.sortOrder, className: "text-center" },
+        { value: category.name, className: "font-medium " },
+        { value: category.desc || "-", className: "" },
+        { value: category.slug, className: "text-sm text-gray-600 " },
+        { value: category.sortOrder, className: "text-center " },
         {
           value: (
             <div className="text-center">
@@ -163,8 +139,9 @@ const CategoryList = () => {
               </span>
             </div>
           ),
+          className: "",
         },
-        { value: formatDate(category.createdAt) },
+        { value: formatDate(category.createdAt), className: "" },
         {
           value: (
             <div className="action-buttons">
@@ -183,6 +160,7 @@ const CategoryList = () => {
               />
             </div>
           ),
+          className: "text-center ",
         },
       ],
     }));
@@ -219,7 +197,8 @@ const CategoryList = () => {
           defaultSort={shortBy}
           searchable={true}
           onSearch={(value) => {
-            console.log("value", value);
+            setSearchTerm(value);
+            setPagination((prev) => ({ ...prev, currentPage: 0 }));
           }}
           paginationOption={pagination}
           onPaginationChange={(page) =>
