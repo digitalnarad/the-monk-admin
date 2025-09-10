@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { Upload, Crop, Check, X } from "lucide-react";
+import { Upload, Check, X } from "lucide-react";
 import { Button, Modal } from "../";
 import "./ImageCropper.css";
 
@@ -10,29 +10,39 @@ const ImageCropper = ({
   value = null,
   onChange,
   enableCropping = true,
-  aspectRatio = 1, // 1 for square, 16/9 for landscape, etc.
+  aspectRatio = 1, // 1 for square, 3 for 3:1, 16/9 for landscape, etc.
   disabled = false,
   error,
   placeholder = "Click to upload or drag and drop",
   accept = "image/*",
   maxSize = 5 * 1024 * 1024, // 5MB
   className = "",
+  url = "",
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState();
   const [showCropModal, setShowCropModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState(url);
 
   const imgRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const ratioClass =
+    aspectRatio === 1 ? "frame-square" : aspectRatio === 3 ? "frame-3-1" : "";
+  const cropLabel =
+    aspectRatio === 1
+      ? "square"
+      : aspectRatio === 3
+      ? "3:1"
+      : `${aspectRatio}:1`;
 
   const handleFileSelect = useCallback(
     (event) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      // Validate file size
       if (file.size > maxSize) {
         alert(
           `File size must be less than ${Math.round(maxSize / 1024 / 1024)}MB`
@@ -40,7 +50,6 @@ const ImageCropper = ({
         return;
       }
 
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         alert("Please select a valid image file");
         return;
@@ -52,16 +61,19 @@ const ImageCropper = ({
 
         if (enableCropping && fileInputRef.current) {
           setShowCropModal(true);
+          const baseWidth = 150;
           const initialCrop = {
             unit: "px",
-            width: 200,
-            height: 200,
+            width: baseWidth,
+            height:
+              aspectRatio && aspectRatio > 0
+                ? Math.round(baseWidth / aspectRatio)
+                : baseWidth,
             x: 10,
             y: 10,
           };
           setCrop(initialCrop);
         } else {
-          // If cropping is disabled, use image as-is
           const imageData = {
             file,
             preview: e.target?.result,
@@ -77,6 +89,8 @@ const ImageCropper = ({
 
   const getCroppedImage = useCallback(
     (image, crop, fileName = "cropped-image.jpg") => {
+      console.log("crop", crop);
+      console.log("image", image);
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
 
@@ -129,7 +143,6 @@ const ImageCropper = ({
 
   const handleCropComplete = useCallback(async () => {
     if (!completedCrop || !imgRef.current) return;
-    console.log("completedCrop", completedCrop);
 
     setIsLoading(true);
     try {
@@ -156,7 +169,6 @@ const ImageCropper = ({
     setCrop(null);
     setCompletedCrop(null);
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -169,23 +181,25 @@ const ImageCropper = ({
   const triggerFileInput = useCallback(() => {
     fileInputRef.current?.click();
     handleCropCancel();
-  }, []);
+  }, [handleCropCancel]);
 
   return (
     <div className={`image-cropper ${className}`}>
       {label && <label className="image-cropper-label">{label}</label>}
 
       <div className="image-cropper-container">
-        {!value ? (
+        {!value && !uploadedUrl ? (
           <div
-            className={`image-upload-area ${disabled ? "disabled" : ""}`}
+            className={`image-upload-area image-ratio ${ratioClass} ${
+              disabled ? "disabled" : ""
+            }`}
             onClick={!disabled ? triggerFileInput : undefined}
           >
             <Upload className="upload-icon" size={32} />
             <div className="upload-text">{placeholder}</div>
             <div className="upload-subtext">
               {enableCropping
-                ? "Image will be cropped to square format"
+                ? `Image will be cropped to ${cropLabel}`
                 : "JPG, PNG or WebP"}
             </div>
             <input
@@ -198,8 +212,12 @@ const ImageCropper = ({
             />
           </div>
         ) : (
-          <div className="image-preview-container">
-            <img src={value.preview} alt="Preview" className="image-preview" />
+          <div className={`image-preview-container image-ratio ${ratioClass}`}>
+            <img
+              src={value?.preview || uploadedUrl}
+              alt="Preview"
+              className="image-preview"
+            />
             <div className="image-preview-overlay">
               <Button
                 variant="danger"
@@ -207,6 +225,7 @@ const ImageCropper = ({
                 startIcon={<X size={14} />}
                 onClick={() => {
                   handleRemoveImage();
+                  setUploadedUrl("");
                 }}
               >
                 Remove
@@ -218,7 +237,6 @@ const ImageCropper = ({
 
       {error && <span className="error-message">{error}</span>}
 
-      {/* Crop Modal */}
       {showCropModal && selectedImage && crop && (
         <Modal
           isOpen={showCropModal}

@@ -67,3 +67,29 @@
 .sort-order-input {
   max-width: 120px;
 }
+
+/* Utility layout for form */
+.two-column-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.checkbox-bottom-align {
+  display: flex;
+  align-items: end;
+  padding-bottom: 1rem;
+}
+
+.form-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}

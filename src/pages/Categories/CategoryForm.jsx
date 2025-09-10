@@ -1,43 +1,98 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { Save, ArrowLeft, Upload, X } from 'lucide-react';
-import { Button, Card, Input, Textarea, Checkbox } from '../../components/common';
-import { validateImageFile, createImagePreview, cleanupImagePreview } from '../../utils/helpers';
-import './Categories.css';
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { Save, ArrowLeft } from "lucide-react";
+import {
+  Button,
+  Card,
+  Input,
+  Textarea,
+  Checkbox,
+  ImageCropper,
+} from "../../components/common";
+import "./Categories.css";
+import api from "../../services/api";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  handelCatch,
+  setPageLoading,
+  showSuccess,
+  throwError,
+} from "../../store/globalSlice";
 
 const CategoryForm = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isPageLoading } = useSelector((state) => state.global);
   const { id } = useParams();
   const isEdit = Boolean(id);
-  
+
   const [loading, setLoading] = useState(false);
   const [bannerImage, setBannerImage] = useState(null);
+  const [editCategory, setEditCategory] = useState(null);
 
   const validationSchema = Yup.object({
     name: Yup.string()
-      .min(2, 'Name must be at least 2 characters')
-      .max(80, 'Name must be less than 80 characters')
-      .required('Name is required'),
-    desc: Yup.string()
-      .max(500, 'Description must be less than 500 characters'),
+      .min(2, "Name must be at least 2 characters")
+      .max(80, "Name must be less than 80 characters")
+      .required("Name is required"),
+    desc: Yup.string().max(500, "Description must be less than 500 characters"),
     sortOrder: Yup.number()
-      .min(0, 'Sort order must be positive')
-      .required('Sort order is required')
+      .min(0, "Sort order must be positive")
+      .required("Sort order is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      name: '',
-      desc: '',
+      name: "",
+      desc: "",
       sortOrder: 0,
-      isActive: true
+      isActive: true,
     },
     validationSchema,
     onSubmit: async (values) => {
-      await handleSubmit(values);
-    }
+      setLoading(true);
+      try {
+        console.log("Category data:", {
+          ...values,
+          bannerImage,
+        });
+
+        const formData = new FormData();
+        formData.append("desc", values.desc);
+        formData.append("name", values.name);
+        formData.append("sortOrder", values.sortOrder);
+        formData.append("isActive", values.isActive);
+        if (bannerImage) {
+          formData.append("image", bannerImage.file);
+        }
+
+        const res = await api?.[isEdit ? "put" : "post"](
+          `/categories${isEdit ? `/${id}` : ""}`,
+          formData
+        );
+
+        if (![200, 201].includes(res.status)) {
+          console.error("Failed to save category:", res);
+          dispatch(
+            throwError(
+              res?.data?.message || "Failed to save category. Please try again."
+            )
+          );
+          return;
+        }
+        navigate("/categories");
+        dispatch(
+          showSuccess(res?.data?.message || "Category saved successfully.")
+        );
+      } catch (error) {
+        console.error("Error saving category:", error);
+        dispatch(handelCatch(error));
+      } finally {
+        setLoading(false);
+      }
+    },
   });
 
   useEffect(() => {
@@ -47,95 +102,54 @@ const CategoryForm = () => {
   }, [id, isEdit]);
 
   const loadCategory = async () => {
-    setLoading(true);
+    dispatch(setPageLoading(true));
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockCategory = {
-        name: 'Wall Art',
-        desc: 'Beautiful wall art pieces for home decoration',
-        sortOrder: 1,
-        isActive: true
-      };
-      
-      formik.setValues(mockCategory);
-    } catch (error) {
-      console.error('Error loading category:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await api.get(`/categories/${id}`);
+      if (res.status !== 200) {
+        console.error("Failed to fetch category:", res);
+        dispatch(
+          throwError(
+            res?.data?.message || "Failed to fetch category. Please try again."
+          )
+        );
+        navigate("/categories");
+        return;
+      }
 
-  const handleSubmit = async (values) => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      console.log('Category data:', {
-        ...values,
-        bannerImage
+      const data = res.data.response;
+      formik.setValues({
+        name: data.name || "",
+        desc: data.desc || "",
+        sortOrder: data.sortOrder || 0,
+        isActive: data.isActive || false,
       });
-      
-      navigate('/categories');
+      setEditCategory(data);
     } catch (error) {
-      console.error('Error saving category:', error);
+      console.error("Error loading category:", error);
     } finally {
-      setLoading(false);
+      dispatch(setPageLoading(false));
     }
   };
-
-  const handleBannerUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      alert(validation.error);
-      return;
-    }
-
-    if (bannerImage?.preview) {
-      cleanupImagePreview(bannerImage.preview);
-    }
-
-    setBannerImage({
-      file,
-      preview: createImagePreview(file),
-      url: createImagePreview(file)
-    });
-  };
-
-  const removeBanner = () => {
-    if (bannerImage?.preview) {
-      cleanupImagePreview(bannerImage.preview);
-    }
-    setBannerImage(null);
-  };
-
-  if (loading && isEdit) {
-    return (
-      <div className="page-loading">
-        <div>Loading category...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="page-container">
       <div className="page-header">
         <div className="page-header-content">
           <h1 className="page-title">
-            {isEdit ? 'Edit Category' : 'Add New Category'}
+            {isEdit ? "Edit Category" : "Add New Category"}
           </h1>
           <p className="page-subtitle">
-            {isEdit ? 'Update category information' : 'Create a new product category'}
+            {isEdit
+              ? "Update category information"
+              : "Create a new product category"}
           </p>
         </div>
         <div className="page-actions">
           <Button
             variant="ghost"
             startIcon={<ArrowLeft size={18} />}
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate("/categories")}
           >
             Back to Categories
           </Button>
@@ -167,7 +181,7 @@ const CategoryForm = () => {
               error={formik.touched.desc && formik.errors.desc}
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="two-column-fields">
               <Input
                 label="Sort Order"
                 name="sortOrder"
@@ -181,11 +195,13 @@ const CategoryForm = () => {
                 error={formik.touched.sortOrder && formik.errors.sortOrder}
               />
 
-              <div style={{ display: 'flex', alignItems: 'end', paddingBottom: '1rem' }}>
+              <div className="checkbox-bottom-align">
                 <Checkbox
                   label="Active Category"
                   checked={formik.values.isActive}
-                  onChange={(e) => formik.setFieldValue('isActive', e.target.checked)}
+                  onChange={(e) =>
+                    formik.setFieldValue("isActive", e.target.checked)
+                  }
                 />
               </div>
             </div>
@@ -194,53 +210,28 @@ const CategoryForm = () => {
 
         <Card title="Banner Image (Optional)" className="form-section">
           <div className="form-section-body">
-            {!bannerImage ? (
-              <div className="banner-upload-container">
-                <Upload className="image-upload-icon" />
-                <div className="image-upload-text">Upload category banner</div>
-                <div className="image-upload-subtext">
-                  JPG, PNG or WebP (Max 5MB) - Recommended size: 1200x300px
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleBannerUpload}
-                  style={{
-                    position: 'absolute',
-                    opacity: 0,
-                    cursor: 'pointer',
-                    width: '100%',
-                    height: '100%',
-                    top: 0,
-                    left: 0,
-                    pointerEvents: 'auto',
-                    zIndex: 1
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="banner-preview">
-                <img src={bannerImage.preview} alt="Category banner" />
-                <div className="banner-preview-overlay">
-                  <Button
-                    variant="danger"
-                    size="small"
-                    startIcon={<X size={14} />}
-                    onClick={removeBanner}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
+            {!isPageLoading && (
+              <ImageCropper
+                label="Banner Image"
+                value={bannerImage}
+                onChange={setBannerImage}
+                aspectRatio={3}
+                placeholder="Upload category banner"
+                accept="image/*"
+                url={editCategory?.bannerUrl || ""}
+              />
             )}
+            <div className="upload-hint">
+              Recommended size: 1200x400px (3:1)
+            </div>
           </div>
         </Card>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
+        <div className="form-actions-footer">
           <Button
             type="button"
             variant="ghost"
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate("/categories")}
           >
             Cancel
           </Button>
@@ -250,7 +241,7 @@ const CategoryForm = () => {
             loading={loading}
             startIcon={<Save size={18} />}
           >
-            {isEdit ? 'Update Category' : 'Create Category'}
+            {isEdit ? "Update Category" : "Create Category"}
           </Button>
         </div>
       </form>

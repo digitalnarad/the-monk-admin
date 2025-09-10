@@ -1,3 +1,4 @@
+// Update your api service file
 import axios from "axios";
 import storage from "./storage";
 
@@ -6,15 +7,24 @@ const baseURL =
 
 const axios_api = axios.create({
   baseURL: baseURL,
-  headers: { "Content-Type": "application/json" },
-  withCredentials: false, // flip to true if you need cookies
+  withCredentials: false,
 });
 
+// Don't set default Content-Type, let axios handle it based on data type
 axios_api.interceptors.request.use(
   (config) => {
-    const token = storage.get("token"); // or Context, Redux, etc.
+    const token = storage.get("token");
     console.log("api - token", token);
-    if (token) config.headers.Authorization = `Bearer ${token ? token : ""}`;
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // Only set JSON content-type for non-FormData requests
+    if (!(config.data instanceof FormData)) {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -28,6 +38,7 @@ axios_api.interceptors.response.use(
     };
   },
   (error) => {
+    console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -37,6 +48,8 @@ const api = {
     axios_api.get(url, { params, ...config }),
   post: (url, data = {}, config = {}) => axios_api.post(url, data, config),
   put: (url, data = {}, config = {}) => axios_api.put(url, data, config),
+  patch: (url, data = {}, config = {}) => axios_api.patch(url, data, config), // Add patch method
   delete: (url, config = {}) => axios_api.delete(url, config),
 };
+
 export default api;

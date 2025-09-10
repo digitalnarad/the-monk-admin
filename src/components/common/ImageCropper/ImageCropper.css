@@ -18,6 +18,19 @@
   height: 100% !important;
 }
 
+/* Ratio framing helpers */
+.image-ratio {
+  width: 100%;
+}
+
+.image-ratio.frame-square {
+  aspect-ratio: 1 / 1;
+}
+
+.image-ratio.frame-3-1 {
+  aspect-ratio: 3 / 1;
+}
+
 .image-upload-area {
   display: flex;
   flex-direction: column;
@@ -31,6 +44,11 @@
   background: #fafafa;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+/* Ensure exact ratio when framing is applied */
+.image-upload-area.image-ratio {
+  min-height: 0;
 }
 
 .image-upload-area:hover:not(.disabled) {
@@ -67,10 +85,16 @@
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 2px solid #09013a;
   width: 100%;
   height: 100% !important;
+}
+
+/* Ensure image fills frame only when ratio framing is used */
+.image-preview-container.image-ratio .image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .image-preview {
