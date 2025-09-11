@@ -47,7 +47,7 @@ const TagList = () => {
         ? `&search=${encodeURIComponent(debouncedSearch.trim())}`
         : "";
       const res = await api.get(
-        `/tags/getAllTags?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}${searchQuery}`
+        `/tags/?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}${searchQuery}`
       );
       console.log("res", res);
       if (res.status !== 200) {

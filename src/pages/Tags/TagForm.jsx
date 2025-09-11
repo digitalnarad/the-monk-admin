@@ -98,7 +98,7 @@ const TagForm = () => {
     dispatch(setPageLoading(true));
 
     try {
-      const res = await api.get(`/tags/getTagById/${id}`);
+      const res = await api.get(`/tags/${id}`);
       console.log("res", res);
       if (res.status !== 200) {
         dispatch(

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Upload, Check, X } from "lucide-react";
@@ -18,6 +18,8 @@ const ImageCropper = ({
   maxSize = 5 * 1024 * 1024, // 5MB
   className = "",
   url = "",
+  isReset = false,
+  setIsReset = () => {},
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [crop, setCrop] = useState();
@@ -37,6 +39,14 @@ const ImageCropper = ({
       : aspectRatio === 3
       ? "3:1"
       : `${aspectRatio}:1`;
+
+  useEffect(() => {
+    if (isReset) {
+      handleRemoveImage();
+      setUploadedUrl(url);
+      setIsReset(false);
+    }
+  }, [isReset]);
 
   const handleFileSelect = useCallback(
     (event) => {
