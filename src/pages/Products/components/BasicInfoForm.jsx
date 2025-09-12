@@ -254,7 +254,7 @@ const BasicInfoForm = ({
                 placeholder="Upload main product image"
                 accept="image/*"
                 maxSize={10 * 1024 * 1024}
-                url={productData?.image || ""}
+                url={productData?.image}
                 isReset={isReset}
                 setIsReset={setIsReset}
               />

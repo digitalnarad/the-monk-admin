@@ -3,6 +3,7 @@ import ReactPaginate from "react-paginate";
 import { ChevronUp, ChevronDown, Search } from "lucide-react";
 import LoaderCircle from "../LoaderCircle/LoaderCircle";
 import "./Table.css";
+import "../../../styles/theme.css";
 
 const Table = ({
   header,
@@ -75,7 +76,10 @@ const Table = ({
       <div className="table-wrapper">
         <div style={{ minWidth: min || "1000px" }}>
           <div className="table-body">
-            <div className="header-row" style={{ minWidth: min || "1000px" }}>
+            <div
+              className="header-row"
+              style={{ minWidth: min || "1000px", width: "100%" }}
+            >
               {header?.map((elm, index) => {
                 const { title, className, isSort, key } = elm;
                 return (
@@ -85,6 +89,7 @@ const Table = ({
                     }`}
                     key={index}
                     onClick={isSort ? () => handleSort(key) : undefined}
+                    // style={{ width: (elm?.widthPercent || 100) + "%" }}
                   >
                     <span>{title}</span>
                     {isSort && getSortIcon(key)}
@@ -95,7 +100,7 @@ const Table = ({
 
             <div
               className="body-container"
-              style={{ minWidth: min || "1000px" }}
+              style={{ minWidth: min || "1000px", width: "100%" }}
             >
               {!loader ? (
                 row?.length > 0 ? (
@@ -103,7 +108,9 @@ const Table = ({
                     <div className="body-row" key={index}>
                       {elm?.data?.map((cElem, cIndex) => (
                         <div
-                          className={`body-cell ${cElem?.className || ""}`}
+                          className={`body-cell text-base ${
+                            cElem?.className || ""
+                          } ${header[cIndex]?.className || ""}`}
                           key={cIndex}
                         >
                           {cElem?.value}

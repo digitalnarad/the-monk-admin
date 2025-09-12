@@ -1,85 +1,75 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, Search } from 'lucide-react';
-import { Table, Button, Card, Modal, Input } from '../../components/common';
-import { formatDate, formatCurrency, truncateText } from '../../utils/helpers';
-import './Products.css';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Edit, Trash2, Eye, Search } from "lucide-react";
+import { Table, Button, Card, Modal, Input } from "../../components/common";
+import { formatDate, formatCurrency, truncateText } from "../../utils/helpers";
+import "./Products.css";
+import api from "../../services/api";
+import { handelCatch, showSuccess, throwError } from "../../store/globalSlice";
+import { useDispatch } from "react-redux";
+import useDebounce from "../../hooks/useDebounce";
 
 const ProductList = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [deleteModal, setDeleteModal] = useState({ isOpen: false, product: null });
-  const [searchTerm, setSearchTerm] = useState('');
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    product: null,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [shortBy, setShortBy] = useState({
+    key: "createdAt",
+    direction: "desc",
+  });
   const [pagination, setPagination] = useState({
     currentPage: 0,
-    pageSize: 10,
-    count: 0
+    pageSize: 5,
+    count: 0,
   });
 
-  // Mock data for demonstration
-  const mockProducts = [
-    {
-      _id: '1',
-      skuId: 'SKU001',
-      title: 'Modern Art Canvas',
-      desc: 'Beautiful modern art piece for your living room decoration',
-      price: 299.99,
-      discount: 10,
-      category: { name: 'Wall Art' },
-      tags: [{ name: 'Modern' }, { name: 'Canvas' }],
-      defaultVariant: 'vertical',
-      isActive: true,
-      createdAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      _id: '2',
-      skuId: 'SKU002',
-      title: 'Abstract Painting',
-      desc: 'Unique abstract painting with vibrant colors',
-      price: 459.99,
-      discount: 15,
-      category: { name: 'Paintings' },
-      tags: [{ name: 'Abstract' }, { name: 'Colorful' }],
-      defaultVariant: 'horizontal',
-      isActive: true,
-      createdAt: '2024-01-14T09:15:00Z'
-    },
-    {
-      _id: '3',
-      skuId: 'SKU003',
-      title: 'Minimalist Print',
-      desc: 'Clean and simple minimalist design for modern spaces',
-      price: 149.99,
-      discount: 0,
-      category: { name: 'Prints' },
-      tags: [{ name: 'Minimalist' }, { name: 'Modern' }],
-      defaultVariant: 'square',
-      isActive: false,
-      createdAt: '2024-01-13T14:45:00Z'
-    }
-  ];
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     loadProducts();
-  }, [pagination.currentPage, searchTerm]);
+  }, [
+    pagination.currentPage,
+    pagination.pageSize,
+    shortBy.key,
+    shortBy.direction,
+    debouncedSearch,
+  ]);
 
   const loadProducts = async () => {
     setLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Filter products based on search term
-      const filteredProducts = mockProducts.filter(product =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.skuId.toLowerCase().includes(searchTerm.toLowerCase())
+      const searchQuery = debouncedSearch?.trim()
+        ? `&search=${encodeURIComponent(debouncedSearch.trim())}`
+        : "";
+      const res = await api.get(
+        `/products/?page=${pagination.currentPage}&limit=${pagination.pageSize}&sortBy=${shortBy.key}&order=${shortBy.direction}${searchQuery}`
       );
-      
-      setProducts(filteredProducts);
-      setPagination(prev => ({ ...prev, count: filteredProducts.length }));
+      if (res.status !== 200) {
+        dispatch(
+          throwError(
+            res?.data?.message || "Failed to load products. Please try again."
+          )
+        );
+        return;
+      }
+      // Filter products based on search term
+
+      setProducts(res.data.response?.products || []);
+      setPagination((prev) => ({
+        ...prev,
+        count: res.data.response?.count || 0,
+      }));
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error("Error loading products:", error);
+      dispatch(handelCatch(error));
     } finally {
       setLoading(false);
     }
@@ -87,69 +77,130 @@ const ProductList = () => {
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    setPagination(prev => ({ ...prev, currentPage: 0 }));
+    setPagination((prev) => ({ ...prev, currentPage: 0 }));
   };
 
   const handlePageChange = (page) => {
-    setPagination(prev => ({ ...prev, currentPage: page }));
+    setPagination((prev) => ({ ...prev, currentPage: page }));
   };
 
   const handleDeleteProduct = async (productId) => {
+    setIsDeleting(true);
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setProducts(prev => prev.filter(p => p._id !== productId));
-      setDeleteModal({ isOpen: false, product: null });
+      const res = await api.delete(`/products/${productId}`);
+      console.log("res", res);
+      if (res.status !== 200) {
+        dispatch(
+          throwError(
+            res?.data?.message || "Failed to delete product. Please try again."
+          )
+        );
+        return;
+      }
+      dispatch(showSuccess(res.data.message));
+      loadProducts();
     } catch (error) {
-      console.error('Error deleting product:', error);
+      console.error("Error deleting product:", error);
+      dispatch(handelCatch(error));
+    } finally {
+      setDeleteModal({ isOpen: false, product: null });
+      setIsDeleting(false);
     }
   };
 
   const getTableHeaders = () => [
-    { title: 'SKU', className: 'w-100', isSort: true, key: 'skuId' },
-    { title: 'Product', className: 'w-300', isSort: true, key: 'title' },
-    { title: 'Category', className: 'w-150', isSort: true, key: 'category' },
-    { title: 'Price', className: 'w-100 text-right', isSort: true, key: 'price' },
-    { title: 'Status', className: 'w-100 text-center', isSort: true, key: 'isActive' },
-    { title: 'Created', className: 'w-150', isSort: true, key: 'createdAt' },
-    { title: 'Actions', className: 'w-150 text-center' }
+    {
+      title: "SKU",
+      className: "wp-15",
+      isSort: true,
+      key: "skuId",
+      widthPercent: 15,
+    },
+    {
+      title: "Product",
+      className: "wp-30",
+      isSort: true,
+      key: "title",
+      widthPercent: 30,
+    },
+    {
+      title: "Category",
+      className: "wp-15",
+      isSort: true,
+      key: "category",
+      widthPercent: 15,
+    },
+    {
+      title: "Price",
+      className: "wp-10 text-right",
+      isSort: true,
+      key: "price",
+      widthPercent: 10,
+    },
+    {
+      title: "Status",
+      className: "wp-10 text-center",
+      isSort: true,
+      key: "isActive",
+      widthPercent: 10,
+    },
+    {
+      title: "Created",
+      className: "wp-15",
+      isSort: true,
+      key: "createdAt",
+      widthPercent: 10,
+    },
+    { title: "Actions", className: "wp-15 text-center", widthPercent: 10 },
   ];
 
   const getTableRows = () => {
     return products.map((product) => ({
       data: [
-        { value: product.skuId, className: 'font-medium' },
-        { 
+        { value: product.skuId, className: "font-medium" },
+        {
           value: (
             <div>
-              <div className="font-medium">{truncateText(product.title, 30)}</div>
-              <div className="text-xs text-gray-500">{truncateText(product.desc, 40)}</div>
+              <div className="font-medium">
+                {truncateText(product.title, 30)}
+              </div>
+              <div className="text-xs text-gray-500">
+                {truncateText(product.desc, 40)}
+              </div>
             </div>
-          )
+          ),
         },
-        { value: product.category?.name || '-' },
-        { 
+        { value: product.category?.name || "-" },
+        {
           value: (
-            <div className="text-right">
-              <div className="font-medium">{formatCurrency(product.price)}</div>
+            <div className="text-right ">
+              <div className="font-medium text-primary">
+                {formatCurrency(product.price)}
+              </div>
               {product.discount > 0 && (
-                <div className="text-xs text-green-600">{product.discount}% off</div>
+                <div className="text-xs text-green-600">
+                  {product.discount}% off
+                </div>
               )}
             </div>
-          )
+          ),
         },
-        { 
+        {
           value: (
             <div className="text-center">
-              <span className={`status-badge ${product.isActive ? 'active' : 'inactive'}`}>
-                {product.isActive ? 'Active' : 'Inactive'}
+              <span
+                className={`status-badge ${
+                  product.isActive ? "active" : "inactive"
+                }`}
+              >
+                {product.isActive ? "Active" : "Inactive"}
               </span>
             </div>
-          )
+          ),
         },
         { value: formatDate(product.createdAt) },
-        { 
+        {
           value: (
             <div className="action-buttons">
               <Button
@@ -172,9 +223,9 @@ const ProductList = () => {
                 className="text-red-600 hover:text-red-700"
               />
             </div>
-          )
-        }
-      ]
+          ),
+        },
+      ],
     }));
   };
 
@@ -189,7 +240,7 @@ const ProductList = () => {
           <Button
             variant="primary"
             startIcon={<Plus size={18} />}
-            onClick={() => navigate('/products/add')}
+            onClick={() => navigate("/products/add")}
           >
             Add Product
           </Button>
@@ -206,6 +257,12 @@ const ProductList = () => {
           paginationOption={pagination}
           onPaginationChange={handlePageChange}
           min="1200px"
+          onSort={(key, direction) => {
+            setShortBy({ key, direction });
+            console.log("{ key, direction }", { key, direction });
+            setPagination((prev) => ({ ...prev, currentPage: 0 }));
+          }}
+          defaultSort={shortBy}
         />
       </Card>
 
@@ -224,6 +281,7 @@ const ProductList = () => {
             </Button>
             <Button
               variant="danger"
+              loading={isDeleting}
               onClick={() => handleDeleteProduct(deleteModal.product?._id)}
             >
               Delete
@@ -233,7 +291,9 @@ const ProductList = () => {
       >
         <div className="modal-confirm">
           <p>Are you sure you want to delete "{deleteModal.product?.title}"?</p>
-          <p className="text-sm text-gray-500 mt-2">This action cannot be undone.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            This action cannot be undone.
+          </p>
         </div>
       </Modal>
     </div>

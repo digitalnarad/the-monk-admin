@@ -41,6 +41,10 @@ const ImageCropper = ({
       : `${aspectRatio}:1`;
 
   useEffect(() => {
+    setUploadedUrl(url);
+  }, [url]);
+
+  useEffect(() => {
     if (isReset) {
       handleRemoveImage();
       setUploadedUrl(url);

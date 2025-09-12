@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { ArrowLeft, Check } from "lucide-react";
 import { Button } from "../../components/common";
-import { PRODUCT_VARIANTS } from "../../utils/constants";
-import {
-  validateImageFile,
-  createImagePreview,
-  cleanupImagePreview,
-} from "../../utils/helpers";
 import BasicInfoForm from "./components/BasicInfoForm";
 import VariantImagesForm from "./components/VariantImagesForm";
 import "./Products.css";
@@ -21,16 +13,10 @@ const ProductForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
+
   const isEdit = Boolean(id);
 
   const [loading, setLoading] = useState(false);
-  const [activeVariant, setActiveVariant] = useState("vertical");
-  const [variantImages, setVariantImages] = useState({
-    vertical: [],
-    horizontal: [],
-    square: [],
-  });
-  const [mainImage, setMainImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
@@ -114,89 +100,6 @@ const ProductForm = () => {
     }
   };
 
-  const handleFinalSubmit = async (values) => {
-    setLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      console.log("Final product payload:", {
-        ...values,
-        productId: productId || "(no-id)",
-        mainImage,
-        variantImages,
-      });
-    } catch (error) {
-      console.error("Error saving product:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVariantImageUpload = (event, variant) => {
-    const files = Array.from(event.target.files);
-    const currentImages = variantImages[variant];
-
-    if (currentImages.length + files.length > 6) {
-      alert("Maximum 6 images allowed per variant");
-      return;
-    }
-
-    const newImages = [];
-    files.forEach((file) => {
-      const validation = validateImageFile(file);
-      if (validation.valid) {
-        newImages.push({
-          file,
-          preview: createImagePreview(file),
-          url: createImagePreview(file),
-          isPrimary: currentImages.length === 0 && newImages.length === 0,
-        });
-      }
-    });
-
-    setVariantImages((prev) => ({
-      ...prev,
-      [variant]: [...currentImages, ...newImages],
-    }));
-  };
-
-  const removeVariantImage = (variant, index) => {
-    const images = variantImages[variant];
-    const imageToRemove = images[index];
-
-    if (imageToRemove.preview) {
-      cleanupImagePreview(imageToRemove.preview);
-    }
-
-    const updatedImages = images.filter((_, i) => i !== index);
-
-    if (imageToRemove.isPrimary && updatedImages.length > 0) {
-      updatedImages[0].isPrimary = true;
-    }
-
-    setVariantImages((prev) => ({
-      ...prev,
-      [variant]: updatedImages,
-    }));
-  };
-
-  const setPrimaryImage = (variant, index) => {
-    setVariantImages((prev) => ({
-      ...prev,
-      [variant]: prev[variant].map((img, i) => ({
-        ...img,
-        isPrimary: i === index,
-      })),
-    }));
-  };
-
-  if (loading && isEdit) {
-    return (
-      <div className="page-loading">
-        <div>Loading product...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="page-container">
       <div className="page-header">
@@ -258,7 +161,7 @@ const ProductForm = () => {
             <div className="step-circle">
               <span>{isEdit ? <Check size={18} strokeWidth={4} /> : "2"}</span>
             </div>
-            <div className="step-label">Children Step 2</div>
+            <div className="step-label">Variant images</div>
           </div>
         </div>
 
@@ -280,17 +183,9 @@ const ProductForm = () => {
 
         {currentStep === 2 && (
           <VariantImagesForm
-            PRODUCT_VARIANTS={PRODUCT_VARIANTS}
-            activeVariant={activeVariant}
-            setActiveVariant={setActiveVariant}
-            variantImages={variantImages}
-            handleVariantImageUpload={handleVariantImageUpload}
-            removeVariantImage={removeVariantImage}
-            setPrimaryImage={setPrimaryImage}
-            loading={loading}
-            isEdit={isEdit}
-            onBack={() => setCurrentStep(1)}
-            onSubmit={() => {}}
+            setCurrentStep={setCurrentStep}
+            productId={productId}
+            product={productData}
           />
         )}
       </div>

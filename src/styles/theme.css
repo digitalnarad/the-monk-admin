@@ -589,3 +589,64 @@ img {
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
 }
+
+.wp-5 {
+  width: 5% !important;
+}
+.wp-10 {
+  width: 10% !important;
+}
+.wp-15 {
+  width: 15% !important;
+}
+.wp-20 {
+  width: 20% !important;
+}
+.wp-25 {
+  width: 25% !important;
+}
+.wp-30 {
+  width: 30% !important;
+}
+.wp-35 {
+  width: 35% !important;
+}
+.wp-40 {
+  width: 40% !important;
+}
+.wp-45 {
+  width: 45% !important;
+}
+.wp-50 {
+  width: 50% !important;
+}
+.wp-55 {
+  width: 55% !important;
+}
+.wp-60 {
+  width: 60% !important;
+}
+.wp-65 {
+  width: 65% !important;
+}
+.wp-70 {
+  width: 70% !important;
+}
+.wp-75 {
+  width: 75% !important;
+}
+.wp-80 {
+  width: 80% !important;
+}
+.wp-85 {
+  width: 85% !important;
+}
+.wp-90 {
+  width: 90% !important;
+}
+.wp-95 {
+  width: 95% !important;
+}
+.wp-100 {
+  width: 100% !important;
+}

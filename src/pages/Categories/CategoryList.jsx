@@ -102,7 +102,7 @@ const CategoryList = () => {
 
   const getTableHeaders = () => [
     { title: "Name", className: "wp-15", isSort: true, key: "name" },
-    { title: "Description", className: "", isSort: false },
+    { title: "Description", className: "wp-30", isSort: false },
     { title: "Slug", className: "wp-15", isSort: true, key: "slug" },
     {
       title: "Sort Order",

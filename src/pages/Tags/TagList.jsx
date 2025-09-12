@@ -92,17 +92,17 @@ const TagList = () => {
   };
 
   const getTableHeaders = () => [
-    { title: "Name", className: "w-200", isSort: true, key: "name" },
-    { title: "Description", className: "w-300", isSort: false },
-    { title: "Value", className: "w-150", isSort: true, key: "value" },
+    { title: "Name", className: " wp-15", isSort: true, key: "name" },
+    { title: "Description", className: " wp-30", isSort: false },
+    { title: "Value", className: "wp-15", isSort: true, key: "value" },
     {
       title: "Status",
-      className: "w-100 text-center",
+      className: " text-center wp-10",
       isSort: true,
       key: "isActive",
     },
-    { title: "Created", className: "w-150", isSort: true, key: "createdAt" },
-    { title: "Actions", className: "w-150 text-center" },
+    { title: "Created", className: "wp-15", isSort: true, key: "createdAt" },
+    { title: "Actions", className: "wp-15 text-center" },
   ];
 
   const getTableRows = () => {
