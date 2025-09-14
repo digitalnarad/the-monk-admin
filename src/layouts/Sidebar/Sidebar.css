@@ -105,11 +105,12 @@
 
 .nav-arrow {
   color: #9ca3af;
-  transition: transform 0.2s;
+  transition: all 0.2s;
 }
 
 .nav-arrow.expanded {
   transform: rotate(180deg);
+  color: #1d4ed8;
 }
 
 .nav-subitems {
@@ -138,6 +139,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  font-weight: 400;
   font-size: 0.8rem;
   color: #6b7280;
 }
@@ -150,11 +152,15 @@
 .nav-subitem.active {
   background: #dbeafe;
   color: #1d4ed8;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.nav-subicon {
+.nav-subitem .nav-subicon {
   color: #9ca3af;
+}
+.nav-subitem.active .nav-subicon {
+  color: #1d4ed8;
 }
 
 .nav-sublabel {

@@ -1,69 +1,71 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  FolderOpen, 
-  Tags, 
-  Users, 
-  Settings, 
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Package,
+  FolderOpen,
+  Tags,
+  Users,
+  Settings,
   ChevronDown,
-  Plus
-} from 'lucide-react';
-import './Sidebar.css';
+  Plus,
+  Kanban,
+  Dot,
+} from "lucide-react";
+import "./Sidebar.css";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [expandedItems, setExpandedItems] = useState(['products']);
+  const [expandedItems, setExpandedItems] = useState(["products"]);
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: "dashboard",
+      label: "Dashboard",
       icon: LayoutDashboard,
-      path: '/dashboard'
+      path: "/dashboard",
     },
     {
-      id: 'products',
-      label: 'Products',
+      id: "products",
+      label: "Products",
       icon: Package,
-      path: '/products',
+      path: "/products",
       subItems: [
-        { label: 'All Products', path: '/products' },
-        { label: 'Add Product', path: '/products/add' }
-      ]
+        { label: "All Products", path: "/products", icon: null },
+        { label: "Add Product", path: "/products/add", icon: Plus },
+      ],
     },
     {
-      id: 'categories',
-      label: 'Categories',
+      id: "categories",
+      label: "Categories",
       icon: FolderOpen,
-      path: '/categories'
+      path: "/categories",
     },
     {
-      id: 'tags',
-      label: 'Tags',
+      id: "tags",
+      label: "Tags",
       icon: Tags,
-      path: '/tags'
+      path: "/tags",
     },
     {
-      id: 'users',
-      label: 'Users',
+      id: "users",
+      label: "Users",
       icon: Users,
-      path: '/users'
+      path: "/users",
     },
     {
-      id: 'settings',
-      label: 'Settings',
+      id: "settings",
+      label: "Settings",
       icon: Settings,
-      path: '/settings'
-    }
+      path: "/settings",
+    },
   ];
 
   const toggleExpanded = (itemId) => {
-    setExpandedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
+    setExpandedItems((prev) =>
+      prev.includes(itemId)
+        ? prev.filter((id) => id !== itemId)
         : [...prev, itemId]
     );
   };
@@ -77,20 +79,18 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const isActiveItem = (item) => {
     if (item.subItems) {
-      return item.subItems.some(subItem => location.pathname === subItem.path);
+      return item.subItems.some(
+        (subItem) => location.pathname === subItem.path
+      );
     }
     return location.pathname === item.path;
-  };
-
-  const isActiveSubItem = (path) => {
-    return location.pathname === path;
   };
 
   return (
     <>
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
-      
-      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <Package size={24} className="logo-icon" />
@@ -107,7 +107,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             return (
               <div key={item.id} className="nav-item-wrapper">
                 <div
-                  className={`nav-item ${isActive ? 'active' : ''}`}
+                  className={`nav-item ${isActive ? "active" : ""}`}
                   onClick={() => {
                     if (item.subItems) {
                       toggleExpanded(item.id);
@@ -120,29 +120,34 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <IconComponent size={20} className="nav-icon" />
                     <span className="nav-label">{item.label}</span>
                   </div>
-                  
+
                   {item.subItems && (
-                    <ChevronDown 
-                      size={16} 
-                      className={`nav-arrow ${isExpanded ? 'expanded' : ''}`}
+                    <ChevronDown
+                      size={16}
+                      className={`nav-arrow ${isExpanded ? "expanded" : ""}`}
                     />
                   )}
                 </div>
 
                 {item.subItems && isExpanded && (
                   <div className="nav-subitems">
-                    {item.subItems.map((subItem, index) => (
-                      <div
-                        key={index}
-                        className={`nav-subitem ${isActiveSubItem(subItem.path) ? 'active' : ''}`}
-                        onClick={() => handleNavigation(subItem.path)}
-                      >
-                        {subItem.label === 'Add Product' && (
-                          <Plus size={16} className="nav-subicon" />
-                        )}
-                        <span className="nav-sublabel">{subItem.label}</span>
-                      </div>
-                    ))}
+                    {item.subItems.map((subItem, index) => {
+                      const SubItemIcon = subItem.icon;
+                      return (
+                        <div
+                          key={index}
+                          className={`nav-subitem mt-2 ${
+                            location.pathname === subItem.path ? "active" : ""
+                          }`}
+                          onClick={() => handleNavigation(subItem.path)}
+                        >
+                          {subItem.icon && (
+                            <SubItemIcon size={16} className="nav-subicon" />
+                          )}
+                          <span className="nav-sublabel">{subItem.label}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

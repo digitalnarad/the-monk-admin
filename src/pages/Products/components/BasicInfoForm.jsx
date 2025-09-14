@@ -153,7 +153,7 @@ const BasicInfoForm = ({
           );
           return;
         }
-        onProductSubmit(res.data?.response?._id || "");
+        onProductSubmit(res.data?.response?.skuId || "");
         if (isBasicEdit) {
           loadProduct();
         }

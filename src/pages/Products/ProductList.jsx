@@ -213,7 +213,7 @@ const ProductList = () => {
                 variant="ghost"
                 size="small"
                 startIcon={<Edit size={14} />}
-                onClick={() => navigate(`/products/edit/${product._id}`)}
+                onClick={() => navigate(`/products/edit/${product.skuId}`)}
               />
               <Button
                 variant="ghost"

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck } from "lucide-react";
 import { Button } from "../../components/common";
 import BasicInfoForm from "./components/BasicInfoForm";
 import VariantImagesForm from "./components/VariantImagesForm";
@@ -20,21 +20,21 @@ const ProductForm = () => {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
-  const [productId, setProductId] = useState(null);
+  const [productSkuId, setProductSkuId] = useState(null);
   const [productData, setProductData] = useState({});
 
   useEffect(() => {
     if (isEdit) {
-      setProductId(id);
+      setProductSkuId(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEdit]);
 
   useEffect(() => {
-    if (productId) {
+    if (productSkuId) {
       loadProduct();
     }
-  }, [productId]);
+  }, [productSkuId]);
 
   const getCategories = async () => {
     try {
@@ -77,7 +77,7 @@ const ProductForm = () => {
     setLoading(true);
     try {
       // await new Promise((resolve) => setTimeout(resolve, 800));
-      const res = await api.get(`/products/${productId}`);
+      const res = await api.get(`/products/${productSkuId}`);
       if (res.status !== 200) {
         dispatch(
           throwError(
@@ -128,13 +128,13 @@ const ProductForm = () => {
         <div className="stepper">
           <div
             className={`step ${
-              currentStep === 1 ? "active" : productId ? "completed" : ""
+              currentStep === 1 ? "active" : productSkuId ? "completed" : ""
             }`}
             onClick={() => setCurrentStep(1)}
           >
             <div className="step-circle">
               <span>
-                {productId ? <Check size={18} strokeWidth={4} /> : "1"}
+                {productSkuId ? <Check size={18} strokeWidth={4} /> : "1"}
               </span>
             </div>
             <div className="step-label">Product basic info</div>
@@ -150,16 +150,18 @@ const ProductForm = () => {
                 ? "active"
                 : isEdit
                 ? "completed"
-                : productId
+                : productSkuId
                 ? "clickable"
                 : "disabled"
             }`}
             onClick={() => {
-              if (productId || isEdit) setCurrentStep(2);
+              if (productSkuId || isEdit) setCurrentStep(2);
             }}
           >
             <div className="step-circle">
-              <span>{isEdit ? <Check size={18} strokeWidth={4} /> : "2"}</span>
+              <span>
+                {isEdit ? <CheckCheck size={18} strokeWidth={4} /> : "2"}
+              </span>
             </div>
             <div className="step-label">Variant images</div>
           </div>
@@ -168,10 +170,9 @@ const ProductForm = () => {
         {currentStep === 1 && (
           <BasicInfoForm
             onProductSubmit={(id) => {
-              setProductId(id);
+              setProductSkuId(id);
               setCurrentStep(2);
             }}
-            productId={productId}
             productData={productData}
             categories={categories}
             tags={tags}
@@ -184,7 +185,7 @@ const ProductForm = () => {
         {currentStep === 2 && (
           <VariantImagesForm
             setCurrentStep={setCurrentStep}
-            productId={productId}
+            productId={productData?._id}
             product={productData}
           />
         )}
