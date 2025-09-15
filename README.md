@@ -21,3 +21,10 @@ ISSUE:-
 2.  in product form add variyent image so in this primary and remove btn are hide in image box so i want change in remove btn in this i want X simbol in top right and primarry btn is center and also remove btn is show all time and primary btn as it is
 
 are you made you changfe all desinge and also card size is big than why not change text position in varriyent also not work remove btn and also primary tag are difrant desinge and also this tag in imgae box also refector desinge and fiexed this
+
+i want to create product view page in this show product variant images and details
+
+1. in this variant images in carousel you can use any library for this functionality. and also i want to badge btn
+2. i want to one dropdown to select size like horizontal is 3:2 size like (600X200,1200X800,......) i define my aspect ratios like squire 1:1, horizontal 3:2, vertical 3:2
+3. i want to show details like user see product show i dont want to show details in gride so i want to mor flexible minimalist and best user experience design for this view product page
+4. this page connect with view btn in product list table

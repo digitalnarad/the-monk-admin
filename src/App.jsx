@@ -7,7 +7,7 @@ import {
 import DashboardLayout from "./layouts/DashboardLayout";
 import Login from "./pages/Login/Login";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import { ProductList, ProductForm } from "./pages/Products";
+import { ProductList, ProductForm, ProductView } from "./pages/Products";
 import { CategoryList, CategoryForm } from "./pages/Categories";
 import { TagList, TagForm } from "./pages/Tags";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,6 +33,7 @@ function App() {
               {/* Product Routes */}
               <Route path="/products" element={<ProductList />} />
               <Route path="/products/add" element={<ProductForm />} />
+              <Route path="/products/:id" element={<ProductView />} />
               <Route path="/products/edit/:id" element={<ProductForm />} />
 
               {/* Category Routes */}

@@ -38,8 +38,23 @@ axios_api.interceptors.response.use(
     };
   },
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
+    try {
+      const data = error?.response?.data;
+      const message =
+        (data && (data.message || data.error)) ||
+        error?.message ||
+        "API Error";
+      // Log structured info for debugging
+      console.error("API Error:", message, { url: error?.config?.url, status: error?.response?.status, data });
+
+      const err = new Error(typeof message === "string" ? message : JSON.stringify(message));
+      err.original = error;
+      err.response = error.response;
+      err.data = data;
+      return Promise.reject(err);
+    } catch (e) {
+      return Promise.reject(error);
+    }
   }
 );
 

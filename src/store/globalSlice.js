@@ -43,11 +43,26 @@ const globalSlice = createSlice({
 
 export const handelCatch = (error) => async (dispatch) => {
   let status = error?.response?.status;
-  let message =
+  // normalize message to string
+  let rawMessage =
     error?.response?.data?.message ||
     error?.message ||
     error?.response?.data?.error ||
     "Something went wrong!";
+
+  let message = "";
+  try {
+    if (typeof rawMessage === "string") message = rawMessage;
+    else if (typeof rawMessage === "object" && rawMessage !== null) {
+      // try common fields
+      message = rawMessage.message || rawMessage.error || JSON.stringify(rawMessage);
+    } else {
+      message = String(rawMessage);
+    }
+  } catch (e) {
+    message = "Something went wrong!";
+  }
+
   let returnCatch = {
     status: status,
     message: message,
@@ -80,7 +95,17 @@ export const showSuccess = (message) => async (dispatch) => {
 
 export const throwError = (message) => async (dispatch) => {
   let newMessage = message;
-  newMessage = message || "Something went wrong!";
+  try {
+    if (typeof message === "string") newMessage = message;
+    else if (typeof message === "object" && message !== null) {
+      newMessage = message.message || message.error || JSON.stringify(message);
+    } else {
+      newMessage = String(message || "Something went wrong!");
+    }
+  } catch (e) {
+    newMessage = "Something went wrong!";
+  }
+
   dispatch(
     setErrorData({
       show: true,
